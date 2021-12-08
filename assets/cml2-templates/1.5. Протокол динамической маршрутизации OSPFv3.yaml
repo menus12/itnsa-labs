@@ -1,0 +1,150 @@
+lab:
+  description: ''
+  notes: ''
+  timestamp: 1637229045.9023194
+  title: 1.5. Протокол динамической маршрутизации OSPFv3
+  version: 0.0.4
+nodes:
+  - id: n1
+    label: R2
+    node_definition: iosv
+    x: -200
+    y: 0
+    configuration: |-
+      hostname R2
+
+      ipv6 unicast-routing
+
+      interface G0/0
+       no ip address
+       ipv6 address FE80::2 link-local
+       ipv6 address 2001:DB8:5:12::2/64
+       no shut
+
+      interface G0/2
+       no ip address
+       ipv6 address FE80::2 link-local
+       ipv6 address 2001:DB8:5:2::1/64
+       no shut
+    image_definition: iosv-159-3-m3
+    tags: []
+    interfaces:
+      - id: i0
+        label: Loopback0
+        type: loopback
+      - id: i1
+        slot: 0
+        label: GigabitEthernet0/0
+        type: physical
+      - id: i2
+        slot: 1
+        label: GigabitEthernet0/1
+        type: physical
+      - id: i3
+        slot: 2
+        label: GigabitEthernet0/2
+        type: physical
+      - id: i4
+        slot: 3
+        label: GigabitEthernet0/3
+        type: physical
+  - id: n2
+    label: R1
+    node_definition: iosv
+    x: -400
+    y: 0
+    configuration: |-
+      hostname R1
+
+      ipv6 unicast-routing
+
+      interface G0/0
+       no ip address
+       ipv6 address FE80::1 link-local
+       ipv6 address 2001:DB8:5:12::1/64
+       no shut
+
+      interface G0/2
+       no ip address
+       ipv6 address FE80::1 link-local
+       ipv6 address 2001:DB8:5:1::1/64
+       no shut
+    image_definition: iosv-159-3-m3
+    tags: []
+    interfaces:
+      - id: i0
+        label: Loopback0
+        type: loopback
+      - id: i1
+        slot: 0
+        label: GigabitEthernet0/0
+        type: physical
+      - id: i2
+        slot: 1
+        label: GigabitEthernet0/1
+        type: physical
+      - id: i3
+        slot: 2
+        label: GigabitEthernet0/2
+        type: physical
+      - id: i4
+        slot: 3
+        label: GigabitEthernet0/3
+        type: physical
+  - id: n4
+    label: PC-B
+    node_definition: alpine
+    x: 0
+    y: 0
+    configuration: |-
+      # this is a shell script which will be sourced at boot
+      hostname PC-B
+      # configurable user account
+      USERNAME=cisco
+      PASSWORD=cisco
+      ip -6 addr add 2001:DB8:5:2::11/64 dev eth0
+      ip -6 route add FE80::2 dev eth0
+    image_definition: alpine-3-13-2-base
+    tags: []
+    interfaces:
+      - id: i0
+        slot: 0
+        label: eth0
+        type: physical
+  - id: n5
+    label: PC-A
+    node_definition: alpine
+    x: -600
+    y: 0
+    configuration: |+
+      # this is a shell script which will be sourced at boot
+      hostname PC-A
+      # configurable user account
+      USERNAME=cisco
+      PASSWORD=cisco
+      ip -6 addr add 2001:DB8:5:1::11/64 dev eth0
+      ip -6 route add FE80::1 dev eth0
+
+    image_definition: alpine-3-13-2-base
+    tags: []
+    interfaces:
+      - id: i0
+        slot: 0
+        label: eth0
+        type: physical
+links:
+  - id: l4
+    i1: i0
+    n1: n4
+    i2: i3
+    n2: n1
+  - id: l5
+    i1: i3
+    n1: n2
+    i2: i0
+    n2: n5
+  - id: l0
+    i1: i1
+    n1: n2
+    i2: i1
+    n2: n1

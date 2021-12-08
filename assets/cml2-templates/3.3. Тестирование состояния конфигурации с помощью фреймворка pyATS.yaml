@@ -1,0 +1,107 @@
+lab:
+  description: ''
+  notes: ''
+  timestamp: 1638525757.2969985
+  title: 3.3. Тестирование состояния конфигурации с помощью фреймворка pyATS
+  version: 0.0.4
+nodes:
+  - id: n0
+    label: internet
+    node_definition: external_connector
+    x: -250
+    y: 100
+    configuration: virbr0
+    tags: []
+    interfaces:
+      - id: i0
+        slot: 0
+        label: port
+        type: physical
+  - id: n1
+    label: ubuntu
+    node_definition: ubuntu
+    x: -100
+    y: 100
+    configuration: |-
+      #cloud-config
+      hostname: ubuntu
+      manage_etc_hosts: True
+      system_info:
+        default_user:
+          name: cisco
+      password: cisco
+      chpasswd: { expire: False }
+      ssh_pwauth: True
+      bootcmd:
+        - ip a add 192.168.0.100/24 dev ens3
+        - ip link set ens3 up
+    image_definition: ubuntu-20-04-20210224
+    tags: []
+    interfaces:
+      - id: i0
+        slot: 0
+        label: ens3
+        type: physical
+      - id: i1
+        slot: 1
+        label: ens4
+        type: physical
+  - id: n3
+    label: IOS-XE-01
+    node_definition: csr1000v
+    x: 100
+    y: 100
+    configuration: |-
+      hostname IOS-XE-01
+      !
+      ip domain name lab.local
+      !
+      no ip http secure-server
+      crypto key generate rsa gen modulus 2048
+      !
+      interface GigabitEthernet1
+       ip address 192.168.0.1 255.255.255.0
+       no shutdown
+
+      interface Loopback1
+       ip address 1.1.1.1 255.255.255.255
+       no shutdown
+
+      username cisco priv 15 secret cisco
+
+      line vty 0 15
+       login local
+       transport input ssh
+    image_definition: csr1000v-170302
+    tags: []
+    interfaces:
+      - id: i0
+        label: Loopback0
+        type: loopback
+      - id: i1
+        slot: 0
+        label: GigabitEthernet1
+        type: physical
+      - id: i2
+        slot: 1
+        label: GigabitEthernet2
+        type: physical
+      - id: i3
+        slot: 2
+        label: GigabitEthernet3
+        type: physical
+      - id: i4
+        slot: 3
+        label: GigabitEthernet4
+        type: physical
+links:
+  - id: l0
+    i1: i0
+    n1: n1
+    i2: i0
+    n2: n0
+  - id: l1
+    i1: i1
+    n1: n1
+    i2: i1
+    n2: n3
